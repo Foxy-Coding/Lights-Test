@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.LEDPattern.GradientType;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -53,7 +54,11 @@ public class Lights extends SubsystemBase {
   }
 
   public Command matchTimeProgress(){
-    LEDPattern pattern = LEDPattern.progressMaskLayer(() -> DriverStation.getMatchTime());
+
+    LEDPattern base = LEDPattern.solid(Color.kGreen);
+    LEDPattern mask = LEDPattern.progressMaskLayer(() -> DriverStation.getMatchTime());
+
+    LEDPattern pattern = base.mask(mask);
 
     return run(() ->
       pattern.applyTo(objBuffer)
@@ -61,13 +66,34 @@ public class Lights extends SubsystemBase {
   }
 
   public Command shiftProgress(){
+    
     LEDPattern pattern;
-    if (objShift.isNextActive) {
-      pattern = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kGreen, Color.kBlack).
+    
+    LEDPattern shiftPattern = LEDPattern.solid(Color.kBlack);
+
+    // === AUTON PHASE === \\
+    if (objShift == Shift.AUTO) {
+      shiftPattern = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kGreen, Color.kBlack).
       scrollAtAbsoluteSpeed(MetersPerSecond.of(1), distLightSpacing);
-    } else if (Shift.SHIFT_1 != null) {
-      
     }
-  
+
+    // === TRANSITION PHASE === \\
+    else if (objShift == Shift.TRANSITION) {
+      if (Shift.wonAuto().get()){
+        shiftPattern = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kGreen, Color.kWhiteSmoke).
+        scrollAtAbsoluteSpeed(MetersPerSecond.of(-1.5), distLightSpacing);
+      }
+      else if (Shift.wonAuto().get() == false) {
+        shiftPattern = LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kGreen, Color.kBlack).scrollAtAbsoluteSpeed(MetersPerSecond.of(0.5), distLightSpacing);
+      }
+    }
+
+    
+      
+    pattern = shiftPattern;
+
+    return run(() ->
+      pattern.applyTo(objBuffer)
+    );
   }
 }
