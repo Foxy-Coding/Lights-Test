@@ -55,8 +55,7 @@ public class RobotContainer {
     objDriver.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
    objDriver.a().whileTrue(
-      objLights.runPattern(
-        LEDPattern.solid(Color.kGreen)));
+      objLights.shootingLights());
   }
 
   /**

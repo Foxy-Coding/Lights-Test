@@ -6,6 +6,10 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Percent;
+import static edu.wpi.first.units.Units.Second;
+
+import java.util.Map;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -29,6 +33,8 @@ public class Lights extends SubsystemBase {
   private final AddressableLED objLights;
   private final AddressableLEDBuffer objBuffer;
   private Shift objShift;
+
+  private Color stationColor;
   
   /** Creates a new Lights. */
   public Lights() {
@@ -40,7 +46,7 @@ public class Lights extends SubsystemBase {
 
 
 
-    setDefaultCommand(matchTimeProgress());
+    setDefaultCommand(runPattern(LEDPattern.solid(stationColor)));
   }
 
   @Override
@@ -53,7 +59,7 @@ public class Lights extends SubsystemBase {
     return run(() -> pattern.applyTo(objBuffer));
   }
 
-  public Command matchTimeProgress(){
+  public Command matchTimeProgressBar(){
 
     LEDPattern base = LEDPattern.solid(Color.kGreen);
     LEDPattern mask = LEDPattern.progressMaskLayer(() -> DriverStation.getMatchTime());
@@ -84,13 +90,88 @@ public class Lights extends SubsystemBase {
         scrollAtAbsoluteSpeed(MetersPerSecond.of(-1.5), distLightSpacing);
       }
       else if (Shift.wonAuto().get() == false) {
-        shiftPattern = LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kGreen, Color.kBlack).scrollAtAbsoluteSpeed(MetersPerSecond.of(0.5), distLightSpacing);
+        shiftPattern = LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kGreen, Color.kBlack).
+          scrollAtAbsoluteSpeed(MetersPerSecond.of(0.5), distLightSpacing);
       }
+    }
+
+    // === SHIFT 1 === \\
+    else if (objShift == Shift.SHIFT_1) {
+      if (Shift.wonAuto().get() == false){
+        shiftPattern = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kGreen, Color.kWhiteSmoke).
+        scrollAtAbsoluteSpeed(MetersPerSecond.of(1.5), distLightSpacing);
+      }
+      else if (Shift.wonAuto().get() == true) {
+        shiftPattern = LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kGreen, Color.kBlack).
+          scrollAtAbsoluteSpeed(MetersPerSecond.of(0.05), distLightSpacing);
+      }
+    }
+
+    else if (objShift == Shift.SHIFT_2) {
+      if (Shift.wonAuto().get() == true){
+        shiftPattern = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kGreen, Color.kWhiteSmoke).
+        scrollAtAbsoluteSpeed(MetersPerSecond.of(1.5), distLightSpacing);
+      }
+      else if (Shift.wonAuto().get() == false) {
+        shiftPattern = LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kGreen, Color.kBlack).
+          scrollAtAbsoluteSpeed(MetersPerSecond.of(0.05), distLightSpacing);
+      }
+    }
+
+    else if (objShift == Shift.SHIFT_3) {
+      if (Shift.wonAuto().get() == false){
+        shiftPattern = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kGreen, Color.kWhiteSmoke).
+        scrollAtAbsoluteSpeed(MetersPerSecond.of(1.5), distLightSpacing);
+      }
+      else if (Shift.wonAuto().get() == true) {
+        shiftPattern = LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kGreen, Color.kBlack).
+          scrollAtAbsoluteSpeed(MetersPerSecond.of(0.05), distLightSpacing);
+      }
+    }
+
+    else if (objShift == Shift.SHIFT_4) {
+      if (Shift.wonAuto().get() == true){
+        shiftPattern = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kGreen, Color.kWhiteSmoke).
+        scrollAtAbsoluteSpeed(MetersPerSecond.of(1.5), distLightSpacing);
+      }
+      else if (Shift.wonAuto().get() == false) {
+        shiftPattern = LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kGreen, Color.kBlack).
+          scrollAtAbsoluteSpeed(MetersPerSecond.of(0.05), distLightSpacing);
+      }
+    }
+
+    else if (objShift == Shift.END_GAME){
+      shiftPattern = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kGreen, stationColor).
+        scrollAtAbsoluteSpeed(MetersPerSecond.of(1.0), distLightSpacing);
     }
 
     
       
     pattern = shiftPattern;
+
+    return run(() ->
+      pattern.applyTo(objBuffer)
+    );
+  }
+
+  public void setStationColor() {
+      if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+         stationColor = Color.kFirstBlue;
+      }
+      else if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+        stationColor = Color.kFirstRed;
+      }
+      else stationColor = Color.kBlack;
+  }
+
+  public Command shootingLights(){
+    Map<Double, Color> maskSteps = Map.of(0.0, Color.kWhite, 0.5, Color.kBlack);
+    // Map.of(0, Color.kWhite, 0.5, Color.kBlack)
+    LEDPattern base = LEDPattern.solid(Color.kGreen);
+    LEDPattern mask =
+      LEDPattern.steps(maskSteps).scrollAtRelativeSpeed(Percent.per(Second).of(0.25));
+
+    LEDPattern pattern = base.mask(mask);
 
     return run(() ->
       pattern.applyTo(objBuffer)
