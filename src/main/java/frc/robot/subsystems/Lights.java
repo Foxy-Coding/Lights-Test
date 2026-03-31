@@ -26,9 +26,9 @@ import frc.robot.LYNKutil.Shift;
 public class Lights extends SubsystemBase {
 
   private static final int iPort = 9;
-  private static final int iLength = 120;
+  private static final int iLength = 19;
 
-  private static final Distance distLightSpacing = Meters.of(1 / 120.0);
+  private static final Distance distLightSpacing = Meters.of(1 / 19.0);
 
   private final AddressableLED objLights;
   private final AddressableLEDBuffer objBuffer;

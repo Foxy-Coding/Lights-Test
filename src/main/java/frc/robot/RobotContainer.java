@@ -9,6 +9,9 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Lights;
+
+
+
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -54,9 +57,15 @@ public class RobotContainer {
     // cancelling on release.
     objDriver.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
-   objDriver.a().whileTrue(
+    objDriver.a().whileTrue(
       objLights.shootingLights());
+
+    objDriver.x().toggleOnTrue(
+      objLights.shiftProgress()
+    );
   }
+
+
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
